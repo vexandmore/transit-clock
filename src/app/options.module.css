@@ -1,0 +1,16 @@
+.optionContainer {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: flex-end;
+}
+
+.modeSelector {
+    border: none;
+    background-color: transparent;
+    width: auto;
+    /*height: auto;*/
+}
+.modeSelector img {
+    background-color: white;
+}

@@ -1,11 +1,17 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+import styles from './clock.module.css'
 import ClockDisplay from './clock'
+import Options from './options'
+import Footer from './footer'
+import './globals.css';
 
-export default function Home() {
+//import TransitDisplay from './transit'
+
+export default function Home() {  
   return (
     <main className={styles.main}>
+      <Options/>
       <ClockDisplay/>
+      <Footer/>
     </main>
   )
 }

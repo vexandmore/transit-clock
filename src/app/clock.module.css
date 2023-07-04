@@ -1,15 +1,16 @@
 .main {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: space-around;
-  padding: 6rem;
+  padding: 1rem;
   min-height: 100vh;
   align-items: stretch;
 }
 
 .clock {
-    font-size: 13vw;
-    text-align: justify;
+    /*color: var(--text-color);*/
+    font-size: 18vw;
+    text-align: center;
 }
 
 .clock::after {
