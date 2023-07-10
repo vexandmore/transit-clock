@@ -7,10 +7,55 @@
 
 .modeSelector {
     border: none;
-    background-color: transparent;
+    background-color: white;
     width: auto;
     /*height: auto;*/
 }
-.modeSelector img {
+/*.modeSelector img {
     background-color: white;
+}
+*/
+
+.settingsForm {
+}
+.settingsForm input {
+    padding-bottom: 10px;
+    padding-right: 5px;
+}
+
+.modalButton {
+    margin-right: 10px;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modalContent {
+    width: 500px;
+    background-color: rgb(var(--background-start-rgb));
+}
+
+.modalHeader, .modalFooter {
+    padding: 10px;
+}
+
+.modalTitle {
+    margin: 0;
+}
+
+.modalBody {
+    padding: 10px;
+}
+
+.modalContent label {
+    padding-right: 10px;
 }
