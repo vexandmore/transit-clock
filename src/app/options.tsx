@@ -39,16 +39,6 @@ class TimeOfDay {
         return 0;
     }
 
-    public static isLightMode(start: TimeOfDay, end: TimeOfDay, now: Date): boolean {
-        const currentTime = new TimeOfDay(now.getHours().toString() + ":" + now.getMinutes().toString());
-
-        if (start.compareTo(end) <= 0) {
-            return start.compareTo(currentTime) <= 0 && currentTime.compareTo(end) <= -1;
-        } else {
-            return !(end.compareTo(currentTime) <= -1 && currentTime.compareTo(start) <= 0);
-        }
-    }
-
     public toString(): string {
         return this.hour + ":" + this.minute;
     }
@@ -58,14 +48,14 @@ function ConfigModal(props: {show: boolean, onClose: () => void}) {
     const [automaticDarkMode, setautomaticDarkMode] = useState(false);
     const [lightModeStart, setLightModeStart] = useState("");
     const [darkModeStart, setDarkModeStart] = useState("");
-    const [isLightMode, setIsLightMode] = useState(true);
+    const [isManualLightMode, setIsManualLightMode] = useState(true);
 
     useEffect(() => {
         // Run this function once on startup
         setautomaticDarkMode(localStorage.getItem("automaticDarkMode") === "true");
         setLightModeStart(localStorage.getItem("lightModeStart") || "");
         setDarkModeStart(localStorage.getItem("darkModeStart") || "");
-        setIsLightMode(localStorage.getItem("isLightMode") === "true");
+        setIsManualLightMode(localStorage.getItem("isLightMode") === "true");
         handleDisplayMode();
     }, []);
 
@@ -94,13 +84,23 @@ function ConfigModal(props: {show: boolean, onClose: () => void}) {
     
     function handleDisplayMode() {
         if (automaticDarkMode) {
-            if (TimeOfDay.isLightMode(new TimeOfDay(lightModeStart), new TimeOfDay(darkModeStart), new Date(), true, false)) {
+            if (isLightMode(new TimeOfDay(lightModeStart), new TimeOfDay(darkModeStart), new Date())) {
                 document.documentElement.setAttribute("data-theme", "light");
             } else {
                 document.documentElement.setAttribute("data-theme", "dark");
             }
         } else {
-            document.documentElement.setAttribute("data-theme", isLightMode ? "light" : "dark");
+            document.documentElement.setAttribute("data-theme", isManualLightMode ? "light" : "dark");
+        }
+    }
+
+    function isLightMode(start: TimeOfDay, end: TimeOfDay, now: Date): boolean {
+        const currentTime = new TimeOfDay(now.getHours().toString() + ":" + now.getMinutes().toString());
+
+        if (start.compareTo(end) <= 0) {
+            return start.compareTo(currentTime) <= 0 && currentTime.compareTo(end) <= -1;
+        } else {
+            return !(end.compareTo(currentTime) <= -1 && currentTime.compareTo(start) <= 0);
         }
     }
     
@@ -133,7 +133,7 @@ function ConfigModal(props: {show: boolean, onClose: () => void}) {
                             (<>
                             <br/>
                             <label htmlFor="manualMode">Light mode?</label>
-                            <input type="checkbox" checked={isLightMode} id="manualMode" onChange={evt => setIsLightMode(evt.target.checked === true)}></input>
+                            <input type="checkbox" checked={isManualLightMode} id="manualMode" onChange={evt => setIsManualLightMode(evt.target.checked === true)}></input>
                             </>
                             )
                         }
