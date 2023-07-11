@@ -14,8 +14,8 @@ export default function Options() {
 }
 
 class TimeOfDay {
-    private hour: number = 0;
-    private minute: number = 0;
+    public hour: number = 0;
+    public minute: number = 0;
 
     constructor(time?: string) {
         if (time !== undefined) {
@@ -29,23 +29,23 @@ class TimeOfDay {
         }
     }
 
-    public lessThanOrEqual(other: TimeOfDay): boolean {
-        if (this.hour > other.hour) {
-            return false;
-        } else if (this.minute > other.minute) {
-            return false;
-        } else {
-            return true;
+    public compareTo(other: TimeOfDay): number {
+        if (this.hour !== other.hour) {
+            return this.hour - other.hour;
         }
+        if (this.minute !== other.minute) {
+            return this.minute - other.minute;
+        }
+        return 0;
     }
-    
-    public static inRange(start: TimeOfDay, end: TimeOfDay, now: Date): boolean {
+
+    public static isLightMode(start: TimeOfDay, end: TimeOfDay, now: Date): boolean {
         const currentTime = new TimeOfDay(now.getHours().toString() + ":" + now.getMinutes().toString());
 
-        if (start.lessThanOrEqual(end)) {
-            return start.lessThanOrEqual(currentTime) && currentTime.lessThanOrEqual(end);
+        if (start.compareTo(end) <= 0) {
+            return start.compareTo(currentTime) <= 0 && currentTime.compareTo(end) <= -1;
         } else {
-            return !(end.lessThanOrEqual(currentTime) && currentTime.lessThanOrEqual(start));
+            return !(end.compareTo(currentTime) <= -1 && currentTime.compareTo(start) <= 0);
         }
     }
 
@@ -80,23 +80,21 @@ function ConfigModal(props: {show: boolean, onClose: () => void}) {
         }
     });
 
-    if (!props.show) {
-        return null;
-    }
-
+    
     function apply() {
         localStorage.setItem("automaticDarkMode", automaticDarkMode.toString());
         localStorage.setItem("lightModeStart", lightModeStart.toString());
         localStorage.setItem("darkModeStart", darkModeStart.toString());
         localStorage.setItem("isLightMode", isLightMode.toString());
-
+        
         handleDisplayMode();
         props.onClose();
     }
 
+    
     function handleDisplayMode() {
         if (automaticDarkMode) {
-            if (TimeOfDay.inRange(new TimeOfDay(lightModeStart), new TimeOfDay(darkModeStart), new Date())) {
+            if (TimeOfDay.isLightMode(new TimeOfDay(lightModeStart), new TimeOfDay(darkModeStart), new Date(), true, false)) {
                 document.documentElement.setAttribute("data-theme", "light");
             } else {
                 document.documentElement.setAttribute("data-theme", "dark");
@@ -104,6 +102,10 @@ function ConfigModal(props: {show: boolean, onClose: () => void}) {
         } else {
             document.documentElement.setAttribute("data-theme", isLightMode ? "light" : "dark");
         }
+    }
+    
+    if (!props.show) {
+        return null;
     }
 
     return (
