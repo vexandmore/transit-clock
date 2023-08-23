@@ -8,8 +8,7 @@
 .modeSelector {
     border: none;
     background-color: white;
-    width: auto;
-    /*height: auto;*/
+    width: 40px;
 }
 /*.modeSelector img {
     background-color: white;

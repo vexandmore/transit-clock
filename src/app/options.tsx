@@ -7,7 +7,7 @@ export default function Options() {
 
     return (
         <div className={styles.optionConainer}>
-            <button className={styles.modeSelector} onClick={() => {setShowModal(true)}}><img src="/icons8-brightness-50.png" width="30px"></img></button>
+            <input type="image" className={styles.modeSelector} onClick={() => {setShowModal(true)}} src="/icons8-brightness-50.png"/>
             <ConfigModal show={showModal} onClose={() => {setShowModal(false)}}/>
         </div>
     );
