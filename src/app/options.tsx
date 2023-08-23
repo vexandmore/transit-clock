@@ -1,14 +1,14 @@
 "use client"
 import styles from './options.module.css'
+import {Coordinates} from './page'
 import {useState, useEffect} from 'react';
 
-export default function Options() {
+export default function Options(props: {setCoords: React.Dispatch<React.SetStateAction<Coordinates>>, setRadius: React.Dispatch<React.SetStateAction<number>>}) {
     const [showModal, setShowModal] = useState(false);
-
     return (
         <div className={styles.optionConainer}>
             <input type="image" className={styles.modeSelector} onClick={() => {setShowModal(true)}} src="/icons8-gear-50-filled.png"/>
-            <ConfigModal show={showModal} onClose={() => {setShowModal(false)}}/>
+            <ConfigModal show={showModal} onClose={() => {setShowModal(false)}} setCoords={props.setCoords} setRadius={props.setRadius} />
         </div>
     );
 }
@@ -44,11 +44,15 @@ class TimeOfDay {
     }
 }
 
-function ConfigModal(props: {show: boolean, onClose: () => void}) {
+function ConfigModal(props: {show: boolean, onClose: () => void, setCoords: React.Dispatch<React.SetStateAction<Coordinates>>, setRadius: React.Dispatch<React.SetStateAction<number>>}) {
     const [automaticDarkMode, setautomaticDarkMode] = useState(false);
     const [lightModeStart, setLightModeStart] = useState("");
     const [darkModeStart, setDarkModeStart] = useState("");
     const [isManualLightMode, setIsManualLightMode] = useState(true);
+
+    const [localRadius, setLocalRadius] = useState("500");
+    const [localLatitude, setLocalLatitude] = useState("0.0");
+    const [localLongitude, setLocalLongitude] = useState("0.0");
 
     useEffect(() => {
         // Run this function once on startup
@@ -56,6 +60,16 @@ function ConfigModal(props: {show: boolean, onClose: () => void}) {
         setLightModeStart(localStorage.getItem("lightModeStart") || "");
         setDarkModeStart(localStorage.getItem("darkModeStart") || "");
         setIsManualLightMode(localStorage.getItem("isLightMode") === "true");
+
+        const coords = new Coordinates(Number(localStorage.getItem("latitude") || "0"), Number(localStorage.getItem("longitude") || "0"));
+        setLocalLatitude(coords.latitude.toString());
+        setLocalLongitude(coords.longitude.toString());
+        props.setCoords(coords);
+
+        const radius = Number(localStorage.getItem("radius") || "500");
+        setLocalRadius(radius.toString());
+        props.setRadius(radius);
+
         handleDisplayMode();
     }, []);
 
@@ -76,7 +90,13 @@ function ConfigModal(props: {show: boolean, onClose: () => void}) {
         localStorage.setItem("lightModeStart", lightModeStart.toString());
         localStorage.setItem("darkModeStart", darkModeStart.toString());
         localStorage.setItem("isLightMode", isLightMode.toString());
-        
+
+        localStorage.setItem("latitude", localLatitude);
+        localStorage.setItem("longitude", localLongitude);
+        localStorage.setItem("radius", localRadius);
+
+        props.setCoords(new Coordinates(Number(localLatitude), Number(localLongitude)));
+        props.setRadius(Number(localRadius));
         handleDisplayMode();
         props.onClose();
     }
@@ -115,6 +135,9 @@ function ConfigModal(props: {show: boolean, onClose: () => void}) {
                     <h2 className={styles.modalTitle}> Settings </h2>
                 </div>
                 <div className={styles.modalBody}>
+
+                    <h3 className={styles.modalTitle}>Light/Dark Mode</h3>
+                    <hr/>
                     <form className={styles.settingsForm}>
                         <label htmlFor="auto-mode">Automatic night mode?</label>
                         <input type="checkbox" checked={automaticDarkMode} id="auto-mode" onChange={evt => setautomaticDarkMode(evt.target.checked)}></input>
@@ -138,6 +161,20 @@ function ConfigModal(props: {show: boolean, onClose: () => void}) {
                             )
                         }
                     </form>
+
+                    <h3 className={styles.modalTitle}>Transit departures</h3>
+                    <hr/>
+                    <form className={styles.settingsForm}>
+                        <label htmlFor="radius">Distance from location to look for bus routes (m)</label>
+                        <input id="radius" value={localRadius} onChange={evt => setLocalRadius(evt.target.value)}></input>
+                        <br/>
+                        <label htmlFor="latitude">Latitude</label>
+                        <input type="text" id="latitude" value={localLatitude} onChange={evt => setLocalLatitude(evt.target.value)}></input>
+                        <br/>
+                        <label htmlFor="longitude">Longitude</label>
+                        <input id="longitude" value={localLongitude} onChange={evt => setLocalLongitude(evt.target.value)}></input>
+                    </form>
+
                 </div>
                 <div className={styles.modalFooter}>
                     <button className={styles.modalButton} onClick={props.onClose}>Close</button>

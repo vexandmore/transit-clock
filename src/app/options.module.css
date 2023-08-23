@@ -7,7 +7,7 @@
 
 .modeSelector {
     border: none;
-    width: 40px;
+    width: 30px;
 }
 /*.modeSelector img {
     background-color: white;
@@ -38,7 +38,7 @@
 }
 
 .modalContent {
-    width: 500px;
+    max-width: 800px;
     background-color: rgb(var(--background-start-rgb));
 }
 
