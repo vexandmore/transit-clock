@@ -3,12 +3,15 @@ import styles from './options.module.css'
 import {Coordinates} from './page'
 import {useState, useEffect} from 'react';
 
-export default function Options(props: {setCoords: React.Dispatch<React.SetStateAction<Coordinates>>, setRadius: React.Dispatch<React.SetStateAction<number>>}) {
+// Used to pass the setters down
+type Setter<T> =  React.Dispatch<React.SetStateAction<T>>;
+
+export default function Options(props: {setCoords: Setter<Coordinates>, setRadius: Setter<number>, setEndpoint: Setter<string>}) {
     const [showModal, setShowModal] = useState(false);
     return (
         <div className={styles.optionConainer}>
             <input type="image" className={styles.modeSelector} onClick={() => {setShowModal(true)}} src="/icons8-gear-50-filled.png"/>
-            <ConfigModal show={showModal} onClose={() => {setShowModal(false)}} setCoords={props.setCoords} setRadius={props.setRadius} />
+            <ConfigModal show={showModal} onClose={() => {setShowModal(false)}} setCoords={props.setCoords} setRadius={props.setRadius} setEndpoint={props.setEndpoint} />
         </div>
     );
 }
@@ -44,7 +47,7 @@ class TimeOfDay {
     }
 }
 
-function ConfigModal(props: {show: boolean, onClose: () => void, setCoords: React.Dispatch<React.SetStateAction<Coordinates>>, setRadius: React.Dispatch<React.SetStateAction<number>>}) {
+function ConfigModal(props: {show: boolean, onClose: () => void, setCoords: Setter<Coordinates>, setRadius: Setter<number>, setEndpoint: Setter<string>}) {
     const [automaticDarkMode, setautomaticDarkMode] = useState(false);
     const [lightModeStart, setLightModeStart] = useState("");
     const [darkModeStart, setDarkModeStart] = useState("");
@@ -53,13 +56,14 @@ function ConfigModal(props: {show: boolean, onClose: () => void, setCoords: Reac
     const [localRadius, setLocalRadius] = useState("500");
     const [localLatitude, setLocalLatitude] = useState("0.0");
     const [localLongitude, setLocalLongitude] = useState("0.0");
+    const [localEndpoint, setLocalEndpoint] = useState("http://192.168.0.0:3001");
 
     useEffect(() => {
         // Run this function once on startup
         setautomaticDarkMode(localStorage.getItem("automaticDarkMode") === "true");
         setLightModeStart(localStorage.getItem("lightModeStart") || "");
         setDarkModeStart(localStorage.getItem("darkModeStart") || "");
-        setIsManualLightMode(localStorage.getItem("isLightMode") === "true");
+        setIsManualLightMode(localStorage.getItem("isManualLightMode") === "true");
 
         const coords = new Coordinates(Number(localStorage.getItem("latitude") || "0"), Number(localStorage.getItem("longitude") || "0"));
         setLocalLatitude(coords.latitude.toString());
@@ -69,6 +73,10 @@ function ConfigModal(props: {show: boolean, onClose: () => void, setCoords: Reac
         const radius = Number(localStorage.getItem("radius") || "500");
         setLocalRadius(radius.toString());
         props.setRadius(radius);
+
+        const endpoint = localStorage.getItem("endpoint")?.toString() || "";
+        setLocalEndpoint(endpoint);
+        props.setEndpoint(endpoint);
 
         handleDisplayMode();
     }, []);
@@ -89,14 +97,17 @@ function ConfigModal(props: {show: boolean, onClose: () => void, setCoords: Reac
         localStorage.setItem("automaticDarkMode", automaticDarkMode.toString());
         localStorage.setItem("lightModeStart", lightModeStart.toString());
         localStorage.setItem("darkModeStart", darkModeStart.toString());
-        localStorage.setItem("isLightMode", isLightMode.toString());
+        localStorage.setItem("isManualLightMode", isManualLightMode.toString());
 
         localStorage.setItem("latitude", localLatitude);
         localStorage.setItem("longitude", localLongitude);
         localStorage.setItem("radius", localRadius);
+        localStorage.setItem("endpoint", localEndpoint);
 
+        // Bubble up config that is used by other parts of the application
         props.setCoords(new Coordinates(Number(localLatitude), Number(localLongitude)));
         props.setRadius(Number(localRadius));
+        props.setEndpoint(localEndpoint);
         handleDisplayMode();
         props.onClose();
     }
@@ -173,6 +184,9 @@ function ConfigModal(props: {show: boolean, onClose: () => void, setCoords: Reac
                         <br/>
                         <label htmlFor="longitude">Longitude</label>
                         <input id="longitude" value={localLongitude} onChange={evt => setLocalLongitude(evt.target.value)}></input>
+                        <br/>
+                        <label htmlFor="endpoint">Endpoint</label>
+                        <input id="endpoint" value={localEndpoint} onChange={evt => setLocalEndpoint(evt.target.value)}></input>
                     </form>
 
                 </div>

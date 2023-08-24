@@ -6,8 +6,7 @@ import Options from './options'
 import Footer from './footer'
 import './globals.css';
 import {useEffect, useState} from 'react';
-
-//import TransitDisplay from './transit'
+import Transit from './transit'
 
 export class Coordinates {
   public latitude: number = 0;
@@ -22,10 +21,13 @@ export class Coordinates {
 export default function Home() {
   const [coords, setCoords] = useState(new Coordinates(0,0));
   const [radius, setRadius] = useState(600);
+  const [endpoint, setEndpoint] = useState("http://192.168.0.0:3001");
+
   return (
     <main className={styles.main}>
-      <Options setCoords={setCoords} setRadius={setRadius}/>
+      <Options setCoords={setCoords} setRadius={setRadius} setEndpoint={setEndpoint}/>
       <ClockDisplay/>
+      <Transit coords={coords} radius={radius} endpoint={endpoint} />
       <Footer/>
     </main>
   )

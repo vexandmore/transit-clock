@@ -10,6 +10,7 @@
 .clock {
     /*color: var(--text-color);*/
     font-size: 18vw;
+    max-height: 40vh;
     text-align: center;
 }
 

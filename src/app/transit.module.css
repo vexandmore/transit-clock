@@ -1,0 +1,30 @@
+.transitDeparture {
+    min-width: 150px;
+    padding: 4px;
+    border-radius: 3px;
+    font-size: 20pt;
+}
+
+.transitDeparture span {
+    padding: 4px;
+}
+
+.routeNumber {
+    border-radius: 3px;
+}
+
+.headsign {
+    background-color: #DDDDDD;
+    color: black;
+    border-radius: 3px;
+}
+
+.transitContainer {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: baseline;
+    align-content: center;
+    justify-content: space-between;
+    flex-grow: 10;
+}

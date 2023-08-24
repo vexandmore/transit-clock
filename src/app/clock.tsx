@@ -12,10 +12,6 @@ export default function ClockDisplay() {
         }
     });
 
-    function refreshClock(): void {
-        setDate(new Date().toLocaleTimeString([], {hour: 'numeric', minute: 'numeric'}));
-    }
-
     return (
         <>
         <h1 className={styles.clock}>{date}</h1>
