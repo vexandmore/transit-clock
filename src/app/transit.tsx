@@ -54,8 +54,8 @@ export default function TransitDisplay(props: {coords: Coordinates, radius: numb
     };
 
     let refreshTimes = () => {
-        console.log("refreshing times " + upcomingDepartures.length);
-        if (upcomingDepartures.length !== 0) {
+        // console.log("refreshing times " + upcomingDepartures.length);
+        if (upcomingDepartures.length > 0) {
             const newTransitTimes: JSX.Element[] = [];
             for (const departure of upcomingDepartures) {
                 let timeString = "";
@@ -73,19 +73,21 @@ export default function TransitDisplay(props: {coords: Coordinates, radius: numb
                     let minLeft = Math.floor(differenceSeconds / 60);
                     timeString = minLeft + " min";
                 }
+                // console.log("adding a new time");
                 newTransitTimes.push(
                     <TransitTime lineName={departure.route_short_name.toString()} timeIndicator={timeString}
                     bgColor={departure.route_color} textColor={departure.route_text_color} headsign={departure.trip_headsign}
                     key={departure.trip_id + departure.departure_time}/>);
             }
+            // console.log("setting times " + newTransitTimes.length);
             setTransitTimes(newTransitTimes);
         }
     };
 
     useEffect(() => {
-        // Call right away, then with 5min delay
+        // Call right away, then with 2min delay
         updateSchedule();
-        const ajaxTimerId = setInterval(updateSchedule, 1000 * 60 * 5);
+        const ajaxTimerId = setInterval(updateSchedule, 1000 * 60 * 2);
 
         return function cleanup() {
             clearInterval(ajaxTimerId);

@@ -5,7 +5,7 @@ import ClockDisplay from './clock'
 import Options from './options'
 import Footer from './footer'
 import './globals.css';
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
 import Transit from './transit'
 
 export class Coordinates {
