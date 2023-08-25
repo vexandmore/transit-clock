@@ -1,7 +1,7 @@
 "use client"
 import styles from './transit.module.css'
 import {useEffect, useState} from 'react';
-import {Coordinates} from './page';
+import { TransitConfig } from './ConfigClasses'
 
 function getDateFromDepartureTime(departure_time: string): Date {
     let hours = Number(departure_time.substring(0, 2));
@@ -28,26 +28,19 @@ function getDateFromDepartureTime(departure_time: string): Date {
     return currentDate;
 }
 
-export default function TransitDisplay(props: {coords: Coordinates, radius: number, endpoint: string}) {
+export default function TransitDisplay(props: {transitConfig: TransitConfig}) {
     let [upcomingDepartures, setUpcomingDepartures] = useState([] as any[]);
     let [transitTimes, setTransitTimes] = useState([] as JSX.Element[]);
-
+    const config = props.transitConfig;
     // Get local departures every 5min
     let updateSchedule = () => {
-        fetch(`${props.endpoint}/transit?latitude=${props.coords.latitude}&longitude=${props.coords.longitude}&radius=${props.radius}`)
+        fetch(`${config.endpoint}/transit?latitude=${config.coords.latitude}&longitude=${config.coords.longitude}&radius=${config.radius}`)
         .then(res => res.json())
         .then((result) => {
-            // If no results, retry in 1 sec
-            /*if (result.stopTimes.length === 0) {
-                setTimeout(updateSchedule, 1000);
-            }*/
-            console.log("got stop times");
-            console.log(result.stopTimes);
+            // console.log(result.stopTimes);
             setUpcomingDepartures(result.stopTimes);
         },
          (error) => {
-            // If no results, retry in 1 sec
-            //setTimeout(updateSchedule, 1000);
             console.log("error: " + error);
             upcomingDepartures = [];
          });
@@ -55,9 +48,15 @@ export default function TransitDisplay(props: {coords: Coordinates, radius: numb
 
     let refreshTimes = () => {
         // console.log("refreshing times " + upcomingDepartures.length);
+        const blocklistItems = config.blocklist.split(",");
+
         if (upcomingDepartures.length > 0) {
             const newTransitTimes: JSX.Element[] = [];
             for (const departure of upcomingDepartures) {
+                if (blocklistItems.includes(departure.route_short_name + "/" + departure.trip_headsign)) {
+                    continue;
+                }
+
                 let timeString = "";
                 let departureDate = getDateFromDepartureTime(departure.departure_time);
                 let now = new Date();
@@ -66,10 +65,10 @@ export default function TransitDisplay(props: {coords: Coordinates, radius: numb
                     // If departure is in more than 20min, show timestamp
                     timeString = departure.departure_time.substring(0, 5);
                 } else {
-                    // If departure is in less than 20min, show minutes left
                     if (differenceSeconds < 60) {
-                        break;
+                        continue;
                     }
+                    // If departure is in less than 20min, show minutes left
                     let minLeft = Math.floor(differenceSeconds / 60);
                     timeString = minLeft + " min";
                 }
@@ -92,7 +91,7 @@ export default function TransitDisplay(props: {coords: Coordinates, radius: numb
         return function cleanup() {
             clearInterval(ajaxTimerId);
         }
-    }, [props.coords, props.radius, props.endpoint]);
+    }, [config]);
 
     useEffect(() => {
         // Call right away, then with 20 sec delay
@@ -105,9 +104,9 @@ export default function TransitDisplay(props: {coords: Coordinates, radius: numb
     }, [upcomingDepartures]);
 
     if (transitTimes.length === 0) {
-        return (<p>Unable to fetch schedule</p>);
+        return (<p suppressHydrationWarning>Unable to fetch schedule</p>);
     } else {
-        return (<div key='transitContainer' className={styles.transitContainer}>{transitTimes}</div>);
+        return (<div key='transitContainer' className={styles.transitContainer} suppressHydrationWarning>{transitTimes}</div>);
     }
 }
 

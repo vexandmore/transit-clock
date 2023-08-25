@@ -14,7 +14,7 @@ export default function ClockDisplay() {
 
     return (
         <>
-        <h1 className={styles.clock}>{date}</h1>
+        <h1 className={styles.clock} suppressHydrationWarning>{date}</h1>
         </>
     );
 }

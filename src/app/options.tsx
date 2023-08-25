@@ -1,17 +1,17 @@
 "use client"
 import styles from './options.module.css'
-import {Coordinates} from './page'
+import { TransitConfig, Coordinates } from './ConfigClasses'
 import {useState, useEffect} from 'react';
 
 // Used to pass the setters down
 type Setter<T> =  React.Dispatch<React.SetStateAction<T>>;
 
-export default function Options(props: {setCoords: Setter<Coordinates>, setRadius: Setter<number>, setEndpoint: Setter<string>}) {
+export default function Options(props: {setTransitConfig: Setter<TransitConfig>}) {
     const [showModal, setShowModal] = useState(false);
     return (
         <div className={styles.optionConainer}>
             <input type="image" className={styles.modeSelector} onClick={() => {setShowModal(true)}} src="/icons8-gear-50-filled.png"/>
-            <ConfigModal show={showModal} onClose={() => {setShowModal(false)}} setCoords={props.setCoords} setRadius={props.setRadius} setEndpoint={props.setEndpoint} />
+            <ConfigModal show={showModal} onClose={() => {setShowModal(false)}} setTransitConfig={props.setTransitConfig} />
         </div>
     );
 }
@@ -47,7 +47,7 @@ class TimeOfDay {
     }
 }
 
-function ConfigModal(props: {show: boolean, onClose: () => void, setCoords: Setter<Coordinates>, setRadius: Setter<number>, setEndpoint: Setter<string>}) {
+function ConfigModal(props: {show: boolean, onClose: () => void, setTransitConfig: Setter<TransitConfig>}) {
     const [automaticDarkMode, setautomaticDarkMode] = useState(false);
     const [lightModeStart, setLightModeStart] = useState("");
     const [darkModeStart, setDarkModeStart] = useState("");
@@ -57,6 +57,7 @@ function ConfigModal(props: {show: boolean, onClose: () => void, setCoords: Sett
     const [localLatitude, setLocalLatitude] = useState("0.0");
     const [localLongitude, setLocalLongitude] = useState("0.0");
     const [localEndpoint, setLocalEndpoint] = useState("http://192.168.0.0:3001");
+    const [localBlocklist, setLocalBlocklist] = useState("");
 
     useEffect(() => {
         // Run this function once on startup
@@ -65,18 +66,25 @@ function ConfigModal(props: {show: boolean, onClose: () => void, setCoords: Sett
         setDarkModeStart(localStorage.getItem("darkModeStart") || "");
         setIsManualLightMode(localStorage.getItem("isManualLightMode") === "true");
 
+        const config = new TransitConfig();
         const coords = new Coordinates(Number(localStorage.getItem("latitude") || "0"), Number(localStorage.getItem("longitude") || "0"));
         setLocalLatitude(coords.latitude.toString());
         setLocalLongitude(coords.longitude.toString());
-        props.setCoords(coords);
+        config.coords = coords;
 
         const radius = Number(localStorage.getItem("radius") || "500");
         setLocalRadius(radius.toString());
-        props.setRadius(radius);
+        config.radius = radius;
 
         const endpoint = localStorage.getItem("endpoint")?.toString() || "";
         setLocalEndpoint(endpoint);
-        props.setEndpoint(endpoint);
+        config.endpoint = endpoint;
+
+        const blocklist = localStorage.getItem("blocklist")?.toString() || "";
+        setLocalBlocklist(blocklist);
+        config.blocklist = blocklist;
+
+        props.setTransitConfig(config);
 
         handleDisplayMode();
     }, []);
@@ -90,7 +98,7 @@ function ConfigModal(props: {show: boolean, onClose: () => void, setCoords: Sett
         return function cleanup() {
             clearInterval(timerId);
         }
-    });
+    }, []);
 
     
     function apply() {
@@ -103,11 +111,16 @@ function ConfigModal(props: {show: boolean, onClose: () => void, setCoords: Sett
         localStorage.setItem("longitude", localLongitude);
         localStorage.setItem("radius", localRadius);
         localStorage.setItem("endpoint", localEndpoint);
+        localStorage.setItem("blocklist", localBlocklist);
 
         // Bubble up config that is used by other parts of the application
-        props.setCoords(new Coordinates(Number(localLatitude), Number(localLongitude)));
-        props.setRadius(Number(localRadius));
-        props.setEndpoint(localEndpoint);
+        const newConfig = new TransitConfig();
+        newConfig.coords = new Coordinates(Number(localLatitude), Number(localLongitude));
+        newConfig.radius = Number(localRadius);
+        newConfig.endpoint = localEndpoint;
+        newConfig.blocklist = localBlocklist;
+        props.setTransitConfig(newConfig);
+
         handleDisplayMode();
         props.onClose();
     }
@@ -187,6 +200,9 @@ function ConfigModal(props: {show: boolean, onClose: () => void, setCoords: Sett
                         <br/>
                         <label htmlFor="endpoint">Endpoint</label>
                         <input id="endpoint" value={localEndpoint} onChange={evt => setLocalEndpoint(evt.target.value)}></input>
+                        <br/>
+                        <label htmlFor="blocklist">Line Blocklist (enter number/direction):</label>
+                        <input id="blocklist" value={localBlocklist} onChange={evt => setLocalBlocklist(evt.target.value)}></input>
                     </form>
 
                 </div>
