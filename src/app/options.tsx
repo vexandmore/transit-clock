@@ -201,7 +201,7 @@ function ConfigModal(props: {show: boolean, onClose: () => void, setTransitConfi
                         <label htmlFor="endpoint">Endpoint</label>
                         <input id="endpoint" value={localEndpoint} onChange={evt => setLocalEndpoint(evt.target.value)}></input>
                         <br/>
-                        <label htmlFor="blocklist">Line Blocklist (enter number/direction):</label>
+                        <label htmlFor="blocklist">Line Blocklist (enter number/direction or just number, separate by commas):</label>
                         <input id="blocklist" value={localBlocklist} onChange={evt => setLocalBlocklist(evt.target.value)}></input>
                     </form>
 

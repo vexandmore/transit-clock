@@ -53,7 +53,8 @@ export default function TransitDisplay(props: {transitConfig: TransitConfig}) {
         if (upcomingDepartures.length > 0) {
             const newTransitTimes: JSX.Element[] = [];
             for (const departure of upcomingDepartures) {
-                if (blocklistItems.includes(departure.route_short_name + "/" + departure.trip_headsign)) {
+                if (blocklistItems.includes(departure.route_short_name + "/" + departure.trip_headsign) ||
+                    blocklistItems.includes(departure.route_short_name)) {
                     continue;
                 }
 
