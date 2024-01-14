@@ -7,7 +7,7 @@ import Footer from './footer'
 import './globals.css';
 import {useState} from 'react';
 import Transit from './transit'
-import { TransitConfig } from './ConfigClasses'
+import {TransitConfig} from './ConfigClasses'
 
 export default function Home() {
   const [transitConfig, setTransitConfig] = useState(new TransitConfig());

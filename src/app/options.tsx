@@ -1,6 +1,7 @@
 "use client"
 import styles from './options.module.css'
-import { TransitConfig, Coordinates } from './ConfigClasses'
+import {TransitConfig} from './ConfigClasses'
+import {Coordinates} from './coordinates'
 import {useState, useEffect} from 'react';
 
 // Used to pass the setters down
