@@ -1,6 +1,6 @@
 "use client"
 import styles from './options.module.css'
-import {Coordinates} from './page'
+import {Coordinates} from './coordinates'
 import {useState, useEffect} from 'react';
 
 export default function Options(props: {setCoords: React.Dispatch<React.SetStateAction<Coordinates>>, setRadius: React.Dispatch<React.SetStateAction<number>>}) {
