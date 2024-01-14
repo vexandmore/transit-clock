@@ -9,9 +9,15 @@
 
 .clock {
     /*color: var(--text-color);*/
-    font-size: 18vw;
+    font-size: 16vw;
     max-height: 40vh;
     text-align: center;
+}
+
+.clockDate {
+  font-size: 6vw;
+  max-height: 40vh;
+  text-align: center;
 }
 
 .clock::after {
