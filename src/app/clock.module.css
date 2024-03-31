@@ -5,6 +5,8 @@
   padding: 1rem;
   min-height: 100vh;
   align-items: stretch;
+  font: Arial;
+  font-family: sans-serif;
 }
 
 .clock {

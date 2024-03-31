@@ -17,38 +17,9 @@ export default function Options(props: {setTransitConfig: Setter<TransitConfig>}
     );
 }
 
-class TimeOfDay {
-    public hour: number = 0;
-    public minute: number = 0;
-
-    constructor(time?: string) {
-        if (time !== undefined) {
-            const splitted = time.split(':');
-            if (splitted.length > 0) {
-                this.hour = Number(splitted[0]);
-            }
-            if (splitted.length > 1) {
-                this.minute = Number(splitted[1]);
-            }
-        }
-    }
-
-    public compareTo(other: TimeOfDay): number {
-        if (this.hour !== other.hour) {
-            return this.hour - other.hour;
-        }
-        if (this.minute !== other.minute) {
-            return this.minute - other.minute;
-        }
-        return 0;
-    }
-
-    public toString(): string {
-        return this.hour + ":" + this.minute;
-    }
-}
 
 function ConfigModal(props: {show: boolean, onClose: () => void, setTransitConfig: Setter<TransitConfig>}) {
+    // Represents the options in the modal directly
     const [automaticDarkMode, setautomaticDarkMode] = useState(false);
     const [lightModeStart, setLightModeStart] = useState("");
     const [darkModeStart, setDarkModeStart] = useState("");
@@ -62,12 +33,24 @@ function ConfigModal(props: {show: boolean, onClose: () => void, setTransitConfi
 
     useEffect(() => {
         // Run this function once on startup
-        setautomaticDarkMode(localStorage.getItem("automaticDarkMode") === "true");
-        setLightModeStart(localStorage.getItem("lightModeStart") || "");
-        setDarkModeStart(localStorage.getItem("darkModeStart") || "");
-        setIsManualLightMode(localStorage.getItem("isManualLightMode") === "true");
-
         const config = new TransitConfig();
+
+        const automaticDarkMode = localStorage.getItem("automaticDarkMode") === "true";
+        setautomaticDarkMode(automaticDarkMode);
+        config.automaticDarkMode = automaticDarkMode;
+
+        const lightModeStart = localStorage.getItem("lightModeStart") || "";
+        setLightModeStart(lightModeStart);
+        config.lightModeStart = lightModeStart;
+
+        const darkModeStart = localStorage.getItem("darkModeStart") || "";
+        setDarkModeStart(darkModeStart);
+        config.darkModeStart = darkModeStart;
+
+        const isManualLightMode = localStorage.getItem("isManualLightMode") === "true";
+        setIsManualLightMode(isManualLightMode);
+        config.isManualLightMode = isManualLightMode;
+
         const coords = new Coordinates(Number(localStorage.getItem("latitude") || "0"), Number(localStorage.getItem("longitude") || "0"));
         setLocalLatitude(coords.latitude.toString());
         setLocalLongitude(coords.longitude.toString());
@@ -86,19 +69,6 @@ function ConfigModal(props: {show: boolean, onClose: () => void, setTransitConfi
         config.blocklist = blocklist;
 
         props.setTransitConfig(config);
-
-        handleDisplayMode();
-    }, []);
-
-    useEffect(() => {
-        const timerId = setInterval(() => {
-            if (automaticDarkMode) {
-                handleDisplayMode();
-            }
-        }, 1000 * 1);
-        return function cleanup() {
-            clearInterval(timerId);
-        }
     }, []);
 
     
@@ -120,34 +90,16 @@ function ConfigModal(props: {show: boolean, onClose: () => void, setTransitConfi
         newConfig.radius = Number(localRadius);
         newConfig.endpoint = localEndpoint;
         newConfig.blocklist = localBlocklist;
+        newConfig.automaticDarkMode = automaticDarkMode;
+        newConfig.lightModeStart = lightModeStart;
+        newConfig.darkModeStart = darkModeStart;
+        newConfig.isManualLightMode = isManualLightMode;
+
         props.setTransitConfig(newConfig);
 
-        handleDisplayMode();
         props.onClose();
     }
 
-    
-    function handleDisplayMode() {
-        if (automaticDarkMode) {
-            if (isLightMode(new TimeOfDay(lightModeStart), new TimeOfDay(darkModeStart), new Date())) {
-                document.documentElement.setAttribute("data-theme", "light");
-            } else {
-                document.documentElement.setAttribute("data-theme", "dark");
-            }
-        } else {
-            document.documentElement.setAttribute("data-theme", isManualLightMode ? "light" : "dark");
-        }
-    }
-
-    function isLightMode(start: TimeOfDay, end: TimeOfDay, now: Date): boolean {
-        const currentTime = new TimeOfDay(now.getHours().toString() + ":" + now.getMinutes().toString());
-
-        if (start.compareTo(end) <= 0) {
-            return start.compareTo(currentTime) <= 0 && currentTime.compareTo(end) <= -1;
-        } else {
-            return !(end.compareTo(currentTime) <= -1 && currentTime.compareTo(start) <= 0);
-        }
-    }
     
     if (!props.show) {
         return null;
