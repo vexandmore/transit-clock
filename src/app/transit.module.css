@@ -3,7 +3,7 @@
     margin: 4px;
     border-radius: 3px;
     font-size: 20pt;
-    background-color: #DDDDDD;
+    background-color: var(--departureColor);
 }
 
 .transitDeparture span {
@@ -15,7 +15,7 @@
 }
 
 .headsign {
-    color: black;
+    /* color: black; */
     border-radius: 3px;
 }
 

@@ -7,59 +7,40 @@ import Footer from './footer'
 import './globals.css';
 import {useState, useEffect} from 'react';
 import Transit from './transit'
-import {TransitConfig} from './ConfigClasses'
+import {TransitConfig, BasicTransitConfig, TimeOfDay} from './ConfigClasses'
 
-class TimeOfDay {
-  public hour: number = 0;
-  public minute: number = 0;
-
-  constructor(time?: string) {
-      if (time !== undefined) {
-          const splitted = time.split(':');
-          if (splitted.length > 0) {
-              this.hour = Number(splitted[0]);
-          }
-          if (splitted.length > 1) {
-              this.minute = Number(splitted[1]);
-          }
-      }
-  }
-
-  public compareTo(other: TimeOfDay): number {
-      if (this.hour !== other.hour) {
-          return this.hour - other.hour;
-      }
-      if (this.minute !== other.minute) {
-          return this.minute - other.minute;
-      }
-      return 0;
-  }
-
-  public toString(): string {
-      return this.hour + ":" + this.minute;
-  }
-}
 
 export default function Home() {
   const [transitConfig, setTransitConfig] = useState(new TransitConfig());
+
+  // Load config from localstorage on startup
+  useEffect(() => {
+    const basicConfig = BasicTransitConfig.getFromLocalStorageOrDefault();
+    const transitConfig = TransitConfig.fromBasicConfigOrDefault(basicConfig);
+    setTransitConfig(transitConfig);
+  }, []);
   
   useEffect(() => {
+    setTheme(transitConfig);
     const timerId = setInterval(() => {
-      if (transitConfig.automaticDarkMode) {
-        if (isLightMode(new TimeOfDay(transitConfig.lightModeStart), new TimeOfDay(transitConfig.darkModeStart), new Date())) {
-          document.documentElement.setAttribute("data-theme", "light");
-        } else {
-          document.documentElement.setAttribute("data-theme", "dark");
-        }
-      } else {
-        document.documentElement.setAttribute("data-theme", transitConfig.isManualLightMode ? "light" : "dark");
-      }
+      setTheme(transitConfig);
     }, 1000 * 1);
     return function cleanup() {
       clearInterval(timerId);
     }
   }, [transitConfig]);
 
+  function setTheme(transitConfig: TransitConfig) {
+    if (transitConfig.automaticDarkMode) {
+      if (isLightMode(transitConfig.lightModeStart, transitConfig.darkModeStart, new Date())) {
+        document.documentElement.setAttribute("data-theme", "light");
+      } else {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+    } else {
+      document.documentElement.setAttribute("data-theme", transitConfig.isManualLightMode ? "light" : "dark");
+    }
+  }
 
   function isLightMode(start: TimeOfDay, end: TimeOfDay, now: Date): boolean {
     const currentTime = new TimeOfDay(now.getHours().toString() + ":" + now.getMinutes().toString());
@@ -74,7 +55,7 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-      <Options setTransitConfig={setTransitConfig}/>
+      <Options transitConfig={transitConfig} setTransitConfig={setTransitConfig}/>
       <ClockDisplay/>
       <Transit transitConfig={transitConfig}/>
       <Footer/>
